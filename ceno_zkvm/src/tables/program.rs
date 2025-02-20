@@ -22,7 +22,7 @@ use rayon::iter::{IndexedParallelIterator, IntoParallelIterator, ParallelIterato
 
 /// This structure establishes the order of the fields in instruction records, common to the program table and circuit fetches.
 #[derive(Clone, Debug)]
-pub struct InsnRecord<T>([T; 6]);
+pub struct InsnRecord<T>([T; 7]);
 
 impl<T> InsnRecord<T> {
     pub fn new(pc: T, kind: T, rd: Option<T>, rs1: T, rs2: T, imm_internal: T) -> Self
@@ -30,11 +30,16 @@ impl<T> InsnRecord<T> {
         T: From<u32>,
     {
         let rd = rd.unwrap_or_else(|| T::from(Instruction::RD_NULL));
-        InsnRecord([pc, kind, rd, rs1, rs2, imm_internal])
+        let target = pc + imm_internal;
+        InsnRecord([pc, kind, rd, rs1, rs2, imm_internal, target])
     }
 
     pub fn as_slice(&self) -> &[T] {
         &self.0
+    }
+
+    pub fn target_address(&self) -> T {
+        self.0[6]
     }
 }
 
